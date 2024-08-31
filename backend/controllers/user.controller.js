@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import { Application } from "../models/application.model.js";
 
 export const register = async (req, res) => {
     try {
@@ -50,6 +51,8 @@ export const register = async (req, res) => {
         });
     }
 };
+
+
 export const login = async (req, res) => {
     try {
         const { email, password, role } = req.body;
@@ -109,6 +112,8 @@ export const login = async (req, res) => {
         });
     }
 };
+
+
 export const logout = async (req, res) => {
     try {
         return res.status(200).cookie("token", "", { maxAge: 0 }).json({
@@ -123,6 +128,8 @@ export const logout = async (req, res) => {
         });
     }
 };
+
+
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
@@ -132,7 +139,7 @@ export const updateProfile = async (req, res) => {
         const fileUri = getDataUri(file);
         const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
 
-
+        console.log(cloudResponse);
 
         let skillsArray;
         if(skills){
@@ -178,6 +185,7 @@ export const updateProfile = async (req, res) => {
             success:true
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "An error occurred while updating the user",
             error: error.message,
@@ -199,17 +207,20 @@ export const deleteUser = async (req, res) => {
             });
         }
 
-        // Delete the user's profile photo from cloudinary if it exists
+        // Delete the user's profile photo from Cloudinary if it exists
         if (user.profile && user.profile.profilePhoto) {
             const publicId = user.profile.profilePhoto.split('/').pop().split('.')[0];
             await cloudinary.uploader.destroy(publicId);
         }
 
+        // Delete the user's applications
+        await Application.deleteMany({ applicant: user._id });
+
         // Delete the user from the database
         await user.deleteOne();
 
         return res.status(200).json({
-            message: "User deleted successfully.",
+            message: "User and associated applications deleted successfully.",
             success: true
         });
     } catch (error) {

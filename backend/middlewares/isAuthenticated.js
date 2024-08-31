@@ -18,8 +18,14 @@ const isAuthenticated = async (req, res, next) => {
         };
         req.id = decode.userId;
         next();
-    } catch (error) {
-        console.log(error);
+    }catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while logging the user",
+            error: error.message,
+            success: false
+        });
     }
-}
+};
+
+
 export default isAuthenticated;

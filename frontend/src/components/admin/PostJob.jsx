@@ -126,7 +126,7 @@ const PostJob = () => {
                             />
                         </div>
                         <div>
-                            <Label>Experience Level</Label>
+                            <Label>Experience Year</Label>
                             <Input
                                 type="text"
                                 name="experience"

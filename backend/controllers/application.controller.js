@@ -42,9 +42,15 @@ export const applyJob = async (req, res) => {
             success:true
         })
     } catch (error) {
-        console.log(error);
+        return res.status(500).json({
+            message: "An error occurred while applying the job",
+            error: error.message,
+            success: false
+        });
     }
 };
+
+
 export const getAppliedJobs = async (req,res) => {
     try {
         const userId = req.id;
@@ -67,10 +73,16 @@ export const getAppliedJobs = async (req,res) => {
             success:true
         })
     } catch (error) {
-        console.log(error);
+        return res.status(500).json({
+            message: "An error occurred while retriving the data",
+            error: error.message,
+            success: false
+        });
     }
-}
-// admin dekhega kitna user ne apply kiya hai
+};
+
+
+// admin le herxa kati user le apply garya xan 
 export const getApplicants = async (req,res) => {
     try {
         const jobId = req.params.id;
@@ -91,10 +103,16 @@ export const getApplicants = async (req,res) => {
             job, 
             succees:true
         });
-    } catch (error) {
-        console.log(error);
+    }catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while retriving the data",
+            error: error.message,
+            success: false
+        });
     }
-}
+};
+
+
 export const updateStatus = async (req,res) => {
     try {
         const {status} = req.body;
@@ -125,6 +143,49 @@ export const updateStatus = async (req,res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        return res.status(500).json({
+            message: "An error occurred while updating the data",
+            error: error.message,
+            success: false
+        });
     }
-}
+};
+
+export const deleteApplication = async (req, res) => {
+    try {
+        const userId = req.id;
+        const applicationId = req.params.id;
+
+        // Find the application by ID and ensure it belongs to the user
+        const application = await Application.findOne({ _id: applicationId, applicant: userId });
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found or you are not authorized to delete it.",
+                success: false
+            });
+        }
+
+        // Find the related job and remove the application reference
+        const job = await Job.findById(application.job);
+        if (job) {
+            job.applications.pull(application._id);
+            await job.save();
+        }
+
+        // Delete the application
+        await Application.deleteOne({ _id: applicationId });
+
+        return res.status(200).json({
+            message: "Application deleted successfully.",
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while deleting the application.",
+            error: error.message,
+            success: false
+        });
+    }
+};
