@@ -162,14 +162,6 @@ export const deleteJob = async (req, res) => {
 export const updateJob = async (req, res) => {
     try {
         const jobId = req.params.id;
-        console.log('Job ID:', jobId); 
-        if (!jobId) {
-            return res.status(400).json({
-                message: "Job ID is required.",
-                success: false
-            });
-        }
-
         if (!mongoose.Types.ObjectId.isValid(jobId)) {
             return res.status(400).json({
                 message: "Invalid Job ID.",
@@ -189,7 +181,6 @@ export const updateJob = async (req, res) => {
             company
         } = req.body;
 
-        // Prepare update data
         let updateData = {};
         if (title) updateData.title = title;
         if (description) updateData.description = description;
@@ -199,9 +190,8 @@ export const updateJob = async (req, res) => {
         if (jobType) updateData.jobType = jobType;
         if (experienceLevel) updateData.experienceLevel = experienceLevel;
         if (position) updateData.position = position;
-        if (company) updateData.company = company;
+        if (company) updateData.company = new mongoose.Types.ObjectId(company); // Ensure ObjectId is instantiated correctly
 
-        // Update job
         const job = await Job.findByIdAndUpdate(jobId, updateData, { new: true });
 
         if (!job) {
@@ -225,3 +215,4 @@ export const updateJob = async (req, res) => {
         });
     }
 };
+

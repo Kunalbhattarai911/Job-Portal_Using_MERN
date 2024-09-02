@@ -95,7 +95,7 @@ const UpdateJob = () => {
 
     return (
         <div>
-            { console.log(input) }
+            {console.log(input)}
             <Navbar />
             <div className='max-w-xl mx-auto my-10'>
                 <form onSubmit={submitHandler}>
@@ -191,9 +191,10 @@ const UpdateJob = () => {
                                             <SelectGroup>
                                                 {
                                                     companies.map((company) => (
-                                                        <SelectItem key={company._id} value={company.name}>
+                                                        <SelectItem key={company._id} value={company._id}>
                                                             {company.name}
                                                         </SelectItem>
+
                                                     ))
                                                 }
                                             </SelectGroup>
