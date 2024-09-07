@@ -5,8 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSearchedQuery } from '@/redux/jobSlice';
 import useGetAllJobs from '@/hooks/useGetAllJobs';
 
-// const randomJobs = [1, 2,45];
-
 const Browse = () => {
     useGetAllJobs();
     const {allJobs} = useSelector(store=>store.job);
@@ -17,6 +15,7 @@ const Browse = () => {
         }
     },[])
     return (
+        // <div className='bg-gray-50 min-h-screen'>
         <div>
             <Navbar />
             <div className='max-w-7xl mx-auto my-10'>

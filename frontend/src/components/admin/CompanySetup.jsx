@@ -21,7 +21,7 @@ const CompanySetup = () => {
         location: "",
         file: null
     });
-    const {singleCompany} = useSelector(store=>store.company);
+    const { singleCompany } = useSelector(store => store.company);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -36,6 +36,13 @@ const CompanySetup = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+
+        // Validation
+        if (input.name.trim() === '') {
+            toast.error('Company name cannot be empty.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append("name", input.name);
         formData.append("description", input.description);
@@ -44,6 +51,7 @@ const CompanySetup = () => {
         if (input.file) {
             formData.append("file", input.file);
         }
+
         try {
             setLoading(true);
             const res = await axios.put(`${COMPANY_API_END_POINT}/update/${params.id}`, formData, {
@@ -55,10 +63,16 @@ const CompanySetup = () => {
             if (res.data.success) {
                 toast.success(res.data.message);
                 navigate("/admin/companies");
+            } else if (res.data.error) {
+                toast.error(res.data.error);
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error('An error occurred while updating the company.');
+            }
         } finally {
             setLoading(false);
         }
@@ -72,7 +86,7 @@ const CompanySetup = () => {
             location: singleCompany.location || "",
             file: singleCompany.file || null
         })
-    },[singleCompany]);
+    }, [singleCompany]);
 
     return (
         <div>
@@ -137,7 +151,6 @@ const CompanySetup = () => {
                     }
                 </form>
             </div>
-
         </div>
     )
 }

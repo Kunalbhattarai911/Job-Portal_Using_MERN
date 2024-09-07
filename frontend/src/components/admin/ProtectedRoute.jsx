@@ -8,7 +8,7 @@ const ProtectedRoute = ({children}) => {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        if(user === null || user.role !== 'recruiter'){
+        if(user === null || user.role !== 'Recruiter'){
             navigate("/");
         }
     },[]);

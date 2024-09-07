@@ -12,34 +12,84 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setLoading } from '@/redux/authSlice'
 import { Loader2 } from 'lucide-react'
 
-const Signup = () => {
+const months = [
+    { name: "January", value: "01" },
+    { name: "February", value: "02" },
+    { name: "March", value: "03" },
+    { name: "April", value: "04" },
+    { name: "May", value: "05" },
+    { name: "June", value: "06" },
+    { name: "July", value: "07" },
+    { name: "August", value: "08" },
+    { name: "September", value: "09" },
+    { name: "October", value: "10" },
+    { name: "November", value: "11" },
+    { name: "December", value: "12" }
+];
 
+const Signup = () => {
     const [input, setInput] = useState({
         fullname: "",
         email: "",
         phoneNumber: "",
         password: "",
         role: "",
+        birth_year: "",  // Year field
+        birth_month: "", // Month dropdown
+        birth_day: "",   // Day field
         file: ""
     });
-    const {loading,user} = useSelector(store=>store.auth);
+
+    const { loading, user } = useSelector(store => store.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const changeEventHandler = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value });
-    }
+        const { name, value } = e.target;
+        if (name === 'fullname') {
+            const filteredValue = value.replace(/[^a-zA-Z\s]/g, ''); // Allow only letters and spaces
+            setInput({ ...input, [name]: filteredValue });
+        } else if (name === 'phoneNumber') {
+            const filteredValue = value.replace(/\D/g, ''); // Allow only digits
+            if (filteredValue.length <= 10) { // Limit phone number to 10 digits
+                setInput({ ...input, [name]: filteredValue });
+            }
+        } else {
+            setInput({ ...input, [name]: value });
+        }
+    };
+
+    const validateYear = (e) => {
+        const year = e.target.value;
+        if (year.length <= 4) { // Limit year input to 4 digits
+            setInput({ ...input, birth_year: year });
+        }
+    };
+
+    const validateDay = (e) => {
+        const day = e.target.value;
+        if (day.length <= 2) { // Limit day input to 2 digits
+            setInput({ ...input, birth_day: day });
+        }
+    };
+
     const changeFileHandler = (e) => {
         setInput({ ...input, file: e.target.files?.[0] });
-    }
+    };
+
     const submitHandler = async (e) => {
         e.preventDefault();
-        const formData = new FormData();    //formdata object
+
+        // Combine the year, month, and day into a single date string
+        const birthDate = `${input.birth_year}-${input.birth_month}-${input.birth_day}`;
+
+        const formData = new FormData();
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("password", input.password);
         formData.append("role", input.role);
+        formData.append("birth_year", birthDate); // Send the combined birth date
         if (input.file) {
             formData.append("file", input.file);
         }
@@ -55,18 +105,20 @@ const Signup = () => {
                 toast.success(res.data.message);
             }
         } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
-        } finally{
+            console.error('Error response:', error.response);
+            console.error('Error message:', error.message);
+            toast.error(error.response?.data?.message || 'An error occurred');
+        } finally {
             dispatch(setLoading(false));
         }
-    }
+    };
 
-    useEffect(()=>{
-        if(user){
+    useEffect(() => {
+        if (user) {
             navigate("/");
         }
-    },[])
+    }, [user, navigate]);
+
     return (
         <div>
             <Navbar />
@@ -92,6 +144,37 @@ const Signup = () => {
                         />
                     </div>
                     <div className='my-2'>
+                        <Label>Date of Birth :</Label>
+                        <div className='flex gap-2'>
+                            <Input
+                                type="number"
+                                placeholder="Year"
+                                value={input.birth_year}
+                                name="birth_year"
+                                onChange={validateYear}
+                            />
+                            <select
+                                value={input.birth_month}
+                                name="birth_month"
+                                onChange={changeEventHandler}
+                                className="cursor-pointer">
+                                <option value="" disabled>Select Month</option>
+                                {months.map((month, index) => (
+                                    <option key={index} value={month.value}>
+                                        {month.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <Input
+                                type="number"
+                                placeholder="Day"
+                                value={input.birth_day}
+                                name="birth_day"
+                                onChange={validateDay}
+                            />
+                        </div>
+                    </div>
+                    <div className='my-2'>
                         <Label>Phone Number:</Label>
                         <Input
                             type="text"
@@ -101,7 +184,7 @@ const Signup = () => {
                         />
                     </div>
                     <div className='my-2'>
-                        <Label>Password</Label>
+                        <Label>Password :</Label>
                         <Input
                             type="password"
                             value={input.password}
@@ -109,6 +192,9 @@ const Signup = () => {
                             onChange={changeEventHandler}
                         />
                     </div>
+
+                   
+
                     <Label>Select Role:</Label>
                     <div className='flex items-center justify-between'>
                         <RadioGroup className="flex items-center gap-4 my-5">
@@ -116,19 +202,19 @@ const Signup = () => {
                                 <Input
                                     type="radio"
                                     name="role"
-                                    value="Seeker "
-                                    checked={input.role === 'Seeker '}
+                                    value="Seeker"
+                                    checked={input.role === 'Seeker'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"
                                 />
-                                <Label htmlFor="r1">Seeker </Label>
+                                <Label htmlFor="r1">Seeker</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Input
                                     type="radio"
                                     name="role"
-                                    value="recruiter"
-                                    checked={input.role === 'recruiter'}
+                                    value="Recruiter"
+                                    checked={input.role === 'Recruiter'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"
                                 />
@@ -152,7 +238,7 @@ const Signup = () => {
                 </form>
             </div>
         </div>
-    )
+    );
 }
 
-export default Signup
+export default Signup;

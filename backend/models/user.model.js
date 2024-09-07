@@ -20,8 +20,12 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type:String,
-        enum:['Seeker ','recruiter'],
+        enum:['Seeker','Recruiter'],
         required:true
+    },
+    birth_year: {
+        type: Date,
+        required: true
     },
     profile:{
         bio:{type:String},
@@ -35,4 +39,5 @@ const userSchema = new mongoose.Schema({
         }
     },
 },{timestamps:true});
+
 export const User = mongoose.model('User', userSchema);

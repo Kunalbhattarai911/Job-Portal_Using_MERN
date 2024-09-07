@@ -16,6 +16,9 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const logoutHandler = async () => {
+        const isConfirmed = window.confirm("Are you sure you want to logout?");
+        if (!isConfirmed) return;
+    
         try {
             const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
             if (res.data.success) {
@@ -27,29 +30,56 @@ const Navbar = () => {
             console.log(error);
             toast.error(error.response.data.message);
         }
-    }
+    };
+    
+
+    const getRojgarSewaLink = () => {
+        if (!user) {
+          return '/';
+        } else if (user.role === 'Seeker') {
+          return '/';
+        } else if (user.role === 'Recruiter') {
+          return '/admin/dashboard';
+        }
+      };
+
+
     return (
         <div className='bg-white'>
             <div className='flex items-center justify-between mx-auto max-w-7xl h-16'>
                 <div>
-                    <h1 className='text-2xl font-bold'>Job<span className='text-[#F83002]'>Portal</span></h1>
+                <Link to={getRojgarSewaLink()}>
+            <h1 className="text-2xl font-bold hover:border rounded-lg p-2 hover:bg-gray-100">
+              Rojgar <span className="text-[#F83002]">Sewa</span>
+            </h1>
+          </Link>
                 </div>
+
                 <div className='flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
-                        {
-                            user && user.role === 'recruiter' ? (
-                                <>
-                                    <li><Link to="/admin/companies">Companies</Link></li>
-                                    <li><Link to="/admin/jobs">Jobs</Link></li>
-                                </>
-                            ) : (
-                                <>
-                                    <li><Link to="/">Home</Link></li>
-                                    <li><Link to="/jobs">Jobs</Link></li>
-                                    <li><Link to="/browse">Browse</Link></li>
-                                </>
-                            )
-                        }
+                    {
+    user && user.role === 'Recruiter' ? (
+        <>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/admin/dashboard">Dashboard</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/admin/companies">Companies</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/admin/jobs">Jobs</Link></li>
+        </>
+    ) : user && user.role === 'Seeker' ? (
+        <>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/">Home</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/browse">Browse</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/jobs">Filter Jobs</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/saveForLater">Saved Jobs</Link></li>
+        </>
+    ) : (
+        <>
+           <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/">Home</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/browse">Browse</Link></li>
+            <li className='hover:border rounded-lg p-2 hover:bg-gray-100'><Link to="/jobs">Filter Jobs</Link></li>
+        </>
+    )
+}
+
 
 
                     </ul>
@@ -79,7 +109,7 @@ const Navbar = () => {
                                         </div>
                                         <div className='flex flex-col my-2 text-gray-600'>
                                             {
-                                                user && user.role === 'Seeker ' && (
+                                                user && user.role === 'Seeker' && (
                                                     <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                                         <User2 />
                                                         <Button variant="link"> <Link to="/profile">View Profile</Link></Button>

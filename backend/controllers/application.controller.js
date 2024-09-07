@@ -189,3 +189,161 @@ export const deleteApplication = async (req, res) => {
         });
     }
 };
+
+export const getPendingApplicants = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Find the job and populate the applications field
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            match: { status: 'pending' }, // Filter applications by 'pending' status
+            populate: {
+                path: 'applicant'
+            }
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+
+        // Filter pending applications
+        const pendingApplications = job.applications.filter(app => app.status === 'pending');
+
+        return res.status(200).json({
+            pendingApplications,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while retrieving the pending applications.",
+            error: error.message,
+            success: false
+        });
+    }
+};
+
+// controllers/application.controller.js
+
+// Get all accepted applications for a specific job
+export const getAcceptedApplicants = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Find the job and populate the applications field
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            match: { status: 'accepted' }, // Filter applications by 'accepted' status
+            populate: {
+                path: 'applicant'
+            }
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+
+        // Filter accepted applications
+        const acceptedApplications = job.applications.filter(app => app.status === 'accepted');
+
+        return res.status(200).json({
+            acceptedApplications,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while retrieving the accepted applications.",
+            error: error.message,
+            success: false
+        });
+    }
+};
+
+
+// controllers/application.controller.js
+
+// Get all rejected applications for a specific job
+export const getRejectedApplicants = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Find the job and populate the applications field
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            match: { status: 'rejected' }, // Filter applications by 'rejected' status
+            populate: {
+                path: 'applicant'
+            }
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+
+        // Filter rejected applications
+        const rejectedApplications = job.applications.filter(app => app.status === 'rejected');
+
+        return res.status(200).json({
+            rejectedApplications,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while retrieving the rejected applications.",
+            error: error.message,
+            success: false
+        });
+    }
+};
+
+export const getApplicantsCount = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Find the job and populate the applications field
+        const job = await Job.findById(jobId).populate({
+            path: 'applications',
+            populate: {
+                path: 'applicant'
+            }
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found.',
+                success: false
+            });
+        }
+
+        // Count applications by status
+        const pendingCount = job.applications.filter(app => app.status === 'pending').length;
+        const acceptedCount = job.applications.filter(app => app.status === 'accepted').length;
+        const rejectedCount = job.applications.filter(app => app.status === 'rejected').length;
+
+        return res.status(200).json({
+            pendingCount,
+            acceptedCount,
+            rejectedCount,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "An error occurred while retrieving the applications count.",
+            error: error.message,
+            success: false
+        });
+    }
+};

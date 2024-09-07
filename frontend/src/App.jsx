@@ -15,6 +15,11 @@ import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import UpdateJobPage from './components/admin/UpdateJobPage'
+import RejectedTable from './components/admin/RejectedTable'
+import AcceptedTable from './components/admin/AcceptedTable'
+import PendingTable from './components/admin/PendingTable'
+import Dashboard from './components/admin/RecruiterDashboard'
+import SavedJobs from './components/SaveForLaterPage'
 
 const appRouter = createBrowserRouter([
   {
@@ -45,7 +50,15 @@ const appRouter = createBrowserRouter([
     path: "/profile",
     element: <Profile />
   },
+  {
+    path: "/saveForLater",
+    element: <SavedJobs />
+  },
   // Admin routes
+  {
+    path:"/admin/dashboard",
+    element: <ProtectedRoute><Dashboard/></ProtectedRoute>
+  },
   {
     path:"/admin/companies",
     element: <ProtectedRoute><Companies/></ProtectedRoute>
@@ -74,7 +87,18 @@ const appRouter = createBrowserRouter([
     path:"/admin/jobs/:id/applicants",
     element:<ProtectedRoute><Applicants/></ProtectedRoute> 
   },
-
+  {
+    path: "/admin/jobs/:id/applicants/pending",
+    element: <ProtectedRoute><PendingTable /></ProtectedRoute>
+  },
+  {
+    path: "/admin/jobs/:id/applicants/accepted",
+    element: <ProtectedRoute><AcceptedTable /></ProtectedRoute>
+  },
+  {
+    path: "/admin/jobs/:id/applicants/rejected",
+    element: <ProtectedRoute><RejectedTable/></ProtectedRoute>
+  }
 ])
 
 function App() {

@@ -12,6 +12,19 @@ import { toast } from 'sonner';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSingleJob } from '@/redux/jobSlice';
 
+const jobTypes = [
+    'Full-Time',
+    'Part-Time',
+    'Contract',
+    'Freelance',
+    'Internship',
+    'Temporary',
+    'Remote',
+    'Hybrid',
+    'Seasonal',
+    'Volunteer'
+];
+
 const UpdateJob = () => {
     const params = useParams();
     const dispatch = useDispatch();
@@ -72,10 +85,25 @@ const UpdateJob = () => {
         setInput({ ...input, company: value });
     };
 
+    const jobTypeChangeHandler = (value) => {
+        setInput({ ...input, jobType: value });
+    };
+
     const submitHandler = async (e) => {
         e.preventDefault();
+    
+        // Validation
+        const requiredFields = ['title', 'description', 'requirements', 'salary', 'experienceLevel', 'location', 'jobType', 'position', 'company'];
+        for (const field of requiredFields) {
+            const value = input[field];
+            if (!value || String(value).trim() === '') {
+                toast.error(`${field.replace(/([A-Z])/g, ' $1')} is required.`);
+                return;
+            }
+        }
+    
         const updateData = { ...input };
-
+    
         try {
             setLoading(true);
             const res = await axios.put(`${JOB_API_END_POINT}/updatejob/${params.id}`, updateData, {
@@ -87,12 +115,12 @@ const UpdateJob = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response.data.message || 'An error occurred while updating the job.');
         } finally {
             setLoading(false);
         }
     };
-
+    
     return (
         <div>
             {console.log(input)}
@@ -144,15 +172,6 @@ const UpdateJob = () => {
                             />
                         </div>
                         <div>
-                            <Label>Experience Level</Label>
-                            <Input
-                                type="number"
-                                name="experienceLevel"
-                                value={input.experienceLevel}
-                                onChange={changeEventHandler}
-                            />
-                        </div>
-                        <div>
                             <Label>Location</Label>
                             <Input
                                 type="text"
@@ -163,15 +182,32 @@ const UpdateJob = () => {
                         </div>
                         <div>
                             <Label>Job Type</Label>
+                            <Select value={input.jobType} onValueChange={jobTypeChangeHandler}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Job Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {jobTypes.map((type) => (
+                                            <SelectItem key={type} value={type}>
+                                                {type}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <Label>Experience Year</Label>
                             <Input
-                                type="text"
-                                name="jobType"
-                                value={input.jobType}
+                                type="number"
+                                name="experienceLevel"
+                                value={input.experienceLevel}
                                 onChange={changeEventHandler}
                             />
                         </div>
                         <div>
-                            <Label>Position</Label>
+                            <Label>No Of Position</Label>
                             <Input
                                 type="number"
                                 name="position"
@@ -194,7 +230,6 @@ const UpdateJob = () => {
                                                         <SelectItem key={company._id} value={company._id}>
                                                             {company.name}
                                                         </SelectItem>
-
                                                     ))
                                                 }
                                             </SelectGroup>

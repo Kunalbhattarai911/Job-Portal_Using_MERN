@@ -1,28 +1,53 @@
-import React, { useEffect, useState } from 'react'
-import Navbar from './shared/Navbar'
-import FilterCard from './FilterCard'
+import React, { useEffect, useState } from 'react';
+import Navbar from './shared/Navbar';
+import FilterCard from './FilterCard';
 import Job from './Job';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
-// const jobsArray = [1, 2, 3, 4, 5, 6, 7, 8];
+// Helper function to convert salary strings like "20k", "1lakh" to numbers
+const convertSalaryStringToNumber = (salary) => {
+    if (salary.toLowerCase().includes('k')) {
+        return parseInt(salary.replace('k', '')) * 1000;
+    } else if (salary.toLowerCase().includes('lac')) {
+        return parseInt(salary.replace('lac', '')) * 100000;
+    } else {
+        return parseInt(salary);
+    }
+};
 
 const Jobs = () => {
-    const { allJobs, searchedQuery } = useSelector(store => store.job);
+    const { allJobs } = useSelector(store => store.job);
     const [filterJobs, setFilterJobs] = useState(allJobs);
+    const location = useLocation(); // Get the current URL
 
     useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const searchedQuery = queryParams.get('filter');
+
         if (searchedQuery) {
+            const [minSalary, maxSalary] = searchedQuery.includes('-')
+                ? searchedQuery.split('-').map(convertSalaryStringToNumber)
+                : [null, null];
+
             const filteredJobs = allJobs.filter((job) => {
+                const jobSalary = convertSalaryStringToNumber(job.salary);
+
+                if (minSalary !== null && maxSalary !== null) {
+                    return jobSalary >= minSalary && jobSalary <= maxSalary;
+                }
+
                 return job.title.toLowerCase().includes(searchedQuery.toLowerCase()) ||
                     job.description.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-                    job.location.toLowerCase().includes(searchedQuery.toLowerCase())
-            })
-            setFilterJobs(filteredJobs)
+                    job.location.toLowerCase().includes(searchedQuery.toLowerCase());
+            });
+
+            setFilterJobs(filteredJobs);
         } else {
-            setFilterJobs(allJobs)
+            setFilterJobs(allJobs);
         }
-    }, [allJobs, searchedQuery]);
+    }, [allJobs, location.search]); 
 
     return (
         <div>
@@ -54,10 +79,8 @@ const Jobs = () => {
                     }
                 </div>
             </div>
-
-
         </div>
     )
 }
 
-export default Jobs
+export default Jobs;

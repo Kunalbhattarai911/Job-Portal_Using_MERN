@@ -11,7 +11,18 @@ import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
-const companyArray = [];
+const jobTypes = [
+    'Full-Time',
+    'Part-Time',
+    'Contract',
+    'Freelance',
+    'Internship',
+    'Temporary',
+    'Remote',
+    'Hybrid',
+    'Seasonal',
+    'Volunteer'
+];
 
 const PostJob = () => {
     const [input, setInput] = useState({
@@ -36,6 +47,10 @@ const PostJob = () => {
     const selectChangeHandler = (value) => {
         const selectedCompany = companies.find((company)=> company.name.toLowerCase() === value);
         setInput({...input, companyId:selectedCompany._id});
+    };
+
+    const jobTypeChangeHandler = (value) => {
+        setInput({...input, jobType: value});
     };
 
     const submitHandler = async (e) => {
@@ -117,18 +132,23 @@ const PostJob = () => {
                         </div>
                         <div>
                             <Label>Job Type</Label>
-                            <Input
-                                type="text"
-                                name="jobType"
-                                value={input.jobType}
-                                onChange={changeEventHandler}
-                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
-                            />
+                            <Select onValueChange={jobTypeChangeHandler} value={input.jobType}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Select Job Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {jobTypes.map((type) => (
+                                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
                             <Label>Experience Year</Label>
                             <Input
-                                type="text"
+                                type="number"
                                 name="experience"
                                 value={input.experience}
                                 onChange={changeEventHandler}
@@ -136,7 +156,7 @@ const PostJob = () => {
                             />
                         </div>
                         <div>
-                            <Label>No of Postion</Label>
+                            <Label>No of Position</Label>
                             <Input
                                 type="number"
                                 name="position"
@@ -154,13 +174,10 @@ const PostJob = () => {
                                     <SelectContent>
                                         <SelectGroup>
                                             {
-                                                companies.map((company) => {
-                                                    return (
-                                                        <SelectItem value={company?.name?.toLowerCase()}>{company.name}</SelectItem>
-                                                    )
-                                                })
+                                                companies.map((company) => (
+                                                    <SelectItem key={company._id} value={company.name.toLowerCase()}>{company.name}</SelectItem>
+                                                ))
                                             }
-
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -171,7 +188,7 @@ const PostJob = () => {
                         loading ? <Button className="w-full my-4"> <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please wait </Button> : <Button type="submit" className="w-full my-4">Post New Job</Button>
                     }
                     {
-                        companies.length === 0 && <p className='text-xs text-red-600 font-bold text-center my-3'>*Please register a company first, before posting a jobs</p>
+                        companies.length === 0 && <p className='text-xs text-red-600 font-bold text-center my-3'>*Please register a company first, before posting a job</p>
                     }
                 </form>
             </div>

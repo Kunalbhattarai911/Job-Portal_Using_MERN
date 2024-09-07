@@ -47,8 +47,8 @@ const Profile = () => {
 
                     navigate('/'); // Redirect to the home page or login page
 
-                     // Reload the page after a successful deletion
-                window.location.reload();
+                    // Reload the page after a successful deletion
+                    window.location.reload();
                 } else {
                     alert(data.message || "Failed to delete user.");
                 }
@@ -58,6 +58,22 @@ const Profile = () => {
         }
     }
 
+    const calculateAge = (birthYear) => {
+        if (!birthYear) {
+            return 'NA';
+        }
+
+        const birthDate = new Date(birthYear);
+        if (isNaN(birthDate.getTime())) {
+            return 'NA';
+        }
+
+        const currentYear = new Date().getFullYear();
+        return currentYear - birthDate.getFullYear();
+    }
+
+    const age = user?.birth_year ? calculateAge(user.birth_year) : 'NA';
+
     return (
         <div>
             <Navbar />
@@ -65,7 +81,7 @@ const Profile = () => {
                 <div className='flex justify-between'>
                     <div className='flex items-center gap-4'>
                         <Avatar className="h-24 w-24">
-                            <AvatarImage src="https://www.shutterstock.com/image-vector/circle-line-simple-design-logo-600nw-2174926871.jpg" alt="profile" />
+                            <AvatarImage src={user?.profile?.profilePhoto} alt="profile" />
                         </Avatar>
                         <div>
                             <h1 className='font-medium text-xl'>{user?.fullname}</h1>
@@ -88,7 +104,10 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className='my-5'>
-                    <h1>Skills</h1>
+                    <p><b>Age:</b>{age}</p>
+                </div>
+                <div className='my-5'>
+                    <h1><b>Skills</b></h1>
                     <div className='flex items-center gap-1'>
                         {
                             user?.profile?.skills.length !== 0 ? user?.profile?.skills.map((item, index) => <Badge key={index}>{item}</Badge>) : <span>NA</span>
