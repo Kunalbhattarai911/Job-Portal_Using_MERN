@@ -23,7 +23,6 @@ export const registerCompany = async (req, res) => {
             });
         }
 
-        // Create the new company
         company = await Company.create({
             name: companyName,
             userId: req.id
@@ -45,7 +44,7 @@ export const registerCompany = async (req, res) => {
 
 export const getCompany = async (req, res) => {
     try {
-        const userId = req.id; // logged in user id
+        const userId = req.id; 
         const companies = await Company.find({ userId });
         if (!companies) {
             return res.status(404).json({
@@ -94,7 +93,6 @@ export const updateCompany = async (req, res) => {
     try {
         const { name, description, website, location } = req.body;
 
-        // Check if the new company name already exists
         if (name) {
             const existingCompany = await Company.findOne({ name });
             if (existingCompany && existingCompany._id.toString() !== req.params.id) {
@@ -105,7 +103,7 @@ export const updateCompany = async (req, res) => {
             }
         }
 
-        // Handle file upload if provided
+        // Handle file upload 
         let logo = null;
         if (req.file) {
             const fileUri = getDataUri(req.file);
@@ -113,7 +111,6 @@ export const updateCompany = async (req, res) => {
             logo = cloudResponse.secure_url;
         }
 
-        // Prepare data for update
         const updateData = { name, description, website, location };
         if (logo) {
             updateData.logo = logo;
@@ -147,7 +144,6 @@ export const deleteCompany = async (req, res) => {
     try {
         const companyId = req.params.id;
 
-        // Find the company
         const company = await Company.findById(companyId);
         if (!company) {
             return res.status(404).json({

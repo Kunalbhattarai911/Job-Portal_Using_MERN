@@ -104,7 +104,7 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className='my-5'>
-                    <p><b>Age:</b>{age}</p>
+                    <p><b>Age : </b>{age}</p>
                 </div>
                 <div className='my-5'>
                     <h1><b>Skills</b></h1>

@@ -24,6 +24,14 @@ export const register = async (req, res) => {
             });
         }
 
+        if (phoneNumber.toString().length !== 10) {
+            return res.status(400).json({
+                message: "Phone number must be exactly 10 digits.",
+                success: false
+            });
+        }
+        
+
         const birthDate = new Date(birth_year);
         const currentYear = new Date().getFullYear();
         const age = currentYear - birthDate.getFullYear();
@@ -180,7 +188,7 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
-        const file = req.file; // File from multer or other file handling middleware
+        const file = req.file; 
         
         let fileUri = "";
         let cloudResponse = null;
@@ -215,6 +223,13 @@ export const updateProfile = async (req, res) => {
                 });
             }
         }
+
+        if (phoneNumber.toString().length !== 10) {
+            return res.status(400).json({
+                message: "Phone number must be exactly 10 digits.",
+                success: false
+            });
+        }
         
         // Update user fields
         if (fullname) user.fullname = fullname;
@@ -237,6 +252,7 @@ export const updateProfile = async (req, res) => {
             fullname: user.fullname,
             email: user.email,
             phoneNumber: user.phoneNumber,
+            birth_year: user.birth_year,
             role: user.role,
             profile: user.profile
         };

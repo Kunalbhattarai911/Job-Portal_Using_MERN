@@ -21,7 +21,6 @@ export const applyJob = async (req, res) => {
             });
         }
 
-        // check if the jobs exists
         const job = await Job.findById(jobId);
         if (!job) {
             return res.status(404).json({
@@ -29,7 +28,7 @@ export const applyJob = async (req, res) => {
                 success: false
             })
         }
-        // create a new application
+
         const newApplication = await Application.create({
             job:jobId,
             applicant:userId,
@@ -124,7 +123,6 @@ export const updateStatus = async (req,res) => {
             })
         };
 
-        // find the application by applicantion id
         const application = await Application.findOne({_id:applicationId});
         if(!application){
             return res.status(404).json({
@@ -133,7 +131,6 @@ export const updateStatus = async (req,res) => {
             })
         };
 
-        // update the status
         application.status = status.toLowerCase();
         await application.save();
 
@@ -156,7 +153,6 @@ export const deleteApplication = async (req, res) => {
         const userId = req.id;
         const applicationId = req.params.id;
 
-        // Find the application by ID and ensure it belongs to the user
         const application = await Application.findOne({ _id: applicationId, applicant: userId });
 
         if (!application) {
@@ -166,14 +162,12 @@ export const deleteApplication = async (req, res) => {
             });
         }
 
-        // Find the related job and remove the application reference
         const job = await Job.findById(application.job);
         if (job) {
             job.applications.pull(application._id);
             await job.save();
         }
 
-        // Delete the application
         await Application.deleteOne({ _id: applicationId });
 
         return res.status(200).json({
@@ -194,10 +188,9 @@ export const getPendingApplicants = async (req, res) => {
     try {
         const jobId = req.params.id;
 
-        // Find the job and populate the applications field
         const job = await Job.findById(jobId).populate({
             path: 'applications',
-            match: { status: 'pending' }, // Filter applications by 'pending' status
+            match: { status: 'pending' }, 
             populate: {
                 path: 'applicant'
             }
@@ -210,7 +203,6 @@ export const getPendingApplicants = async (req, res) => {
             });
         }
 
-        // Filter pending applications
         const pendingApplications = job.applications.filter(app => app.status === 'pending');
 
         return res.status(200).json({
@@ -227,17 +219,14 @@ export const getPendingApplicants = async (req, res) => {
     }
 };
 
-// controllers/application.controller.js
 
-// Get all accepted applications for a specific job
 export const getAcceptedApplicants = async (req, res) => {
     try {
         const jobId = req.params.id;
 
-        // Find the job and populate the applications field
         const job = await Job.findById(jobId).populate({
             path: 'applications',
-            match: { status: 'accepted' }, // Filter applications by 'accepted' status
+            match: { status: 'accepted' }, 
             populate: {
                 path: 'applicant'
             }
@@ -250,7 +239,6 @@ export const getAcceptedApplicants = async (req, res) => {
             });
         }
 
-        // Filter accepted applications
         const acceptedApplications = job.applications.filter(app => app.status === 'accepted');
 
         return res.status(200).json({
@@ -268,17 +256,13 @@ export const getAcceptedApplicants = async (req, res) => {
 };
 
 
-// controllers/application.controller.js
-
-// Get all rejected applications for a specific job
 export const getRejectedApplicants = async (req, res) => {
     try {
         const jobId = req.params.id;
 
-        // Find the job and populate the applications field
         const job = await Job.findById(jobId).populate({
             path: 'applications',
-            match: { status: 'rejected' }, // Filter applications by 'rejected' status
+            match: { status: 'rejected' }, 
             populate: {
                 path: 'applicant'
             }
@@ -291,7 +275,6 @@ export const getRejectedApplicants = async (req, res) => {
             });
         }
 
-        // Filter rejected applications
         const rejectedApplications = job.applications.filter(app => app.status === 'rejected');
 
         return res.status(200).json({
@@ -312,7 +295,6 @@ export const getApplicantsCount = async (req, res) => {
     try {
         const jobId = req.params.id;
 
-        // Find the job and populate the applications field
         const job = await Job.findById(jobId).populate({
             path: 'applications',
             populate: {
@@ -327,7 +309,6 @@ export const getApplicantsCount = async (req, res) => {
             });
         }
 
-        // Count applications by status
         const pendingCount = job.applications.filter(app => app.status === 'pending').length;
         const acceptedCount = job.applications.filter(app => app.status === 'accepted').length;
         const rejectedCount = job.applications.filter(app => app.status === 'rejected').length;
